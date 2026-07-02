@@ -6,12 +6,13 @@
   <title>Sistem Road To Khatam Al-Quran</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: { extend: { colors: { islamic: { green: '#1b6b4a', gold: '#c9a84c', light: '#f0faf4', dark: '#0f3d2b' } } } }
-    }
+    };
   </script>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -32,26 +33,27 @@
       <button type="button" class="tab-btn px-4 py-2 text-sm text-white/90 whitespace-nowrap" data-tab="rekod">Rekod Murid</button>
       <button type="button" class="tab-btn px-4 py-2 text-sm text-white/90 whitespace-nowrap" data-tab="tambah">Tambah Murid</button>
       <button type="button" class="tab-btn px-4 py-2 text-sm text-white/90 whitespace-nowrap" data-tab="analisis">Analisis</button>
-      <button type="button" id="export-btn" class="px-4 py-2 text-sm bg-islamic-gold/20 text-islamic-gold hover:bg-islamic-gold/30 whitespace-nowrap rounded-lg font-medium transition">Export Data</button>
+      <button type="button" class="tab-btn px-4 py-2 text-sm text-white/90 whitespace-nowrap" data-tab="data">Data</button>
     </nav>
   </header>
 
   <main class="max-w-7xl mx-auto px-4 py-6">
     <section id="tab-dashboard" class="tab-content">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="card-stat bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border-l-4 border-islamic-green"><p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Jumlah Murid</p><p id="stat-total-num" class="text-2xl font-bold text-islamic-green">0</p></div>
-        <div class="card-stat bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border-l-4 border-blue-500"><p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Iqra</p><p id="stat-iqra-num" class="text-2xl font-bold text-blue-600">0</p></div>
-        <div class="card-stat bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border-l-4 border-islamic-green"><p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Al-Quran</p><p id="stat-alquran-num" class="text-2xl font-bold text-islamic-green">0</p></div>
-        <div class="card-stat bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border-l-4 border-purple-500"><p class="text-xs text-gray-500 dark:text-gray-400 uppercase">Tamayyuz</p><p id="stat-tamayyuz-num" class="text-2xl font-bold text-purple-600">0</p></div>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <div class="card-stat bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border-l-4 border-islamic-green"><p class="text-xs text-gray-500 uppercase">Jumlah Murid</p><p id="stat-total-num" class="text-2xl font-bold text-islamic-green">0</p></div>
+        <div class="card-stat bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border-l-4 border-blue-500"><p class="text-xs text-gray-500 uppercase">Iqra</p><p id="stat-iqra-num" class="text-2xl font-bold text-blue-600">0</p></div>
+        <div class="card-stat bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border-l-4 border-islamic-green"><p class="text-xs text-gray-500 uppercase">Al-Quran</p><p id="stat-alquran-num" class="text-2xl font-bold text-islamic-green">0</p></div>
+        <div class="card-stat bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border-l-4 border-purple-500"><p class="text-xs text-gray-500 uppercase">Tamayyuz</p><p id="stat-tamayyuz-num" class="text-2xl font-bold text-purple-600">0</p></div>
+        <div class="card-stat bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border-l-4 border-amber-500"><p class="text-xs text-gray-500 uppercase">Khatam</p><p id="stat-khatam-num" class="text-2xl font-bold text-amber-600">0</p></div>
       </div>
       <div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm mb-6">
         <h3 class="font-semibold mb-3">Kemajuan Keseluruhan</h3>
         <div class="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-4"><div id="overall-progress" class="progress-bar bg-gradient-to-r from-islamic-green to-islamic-gold h-4 rounded-full" style="width:0%"></div></div>
-        <p id="progress-text" class="text-sm text-gray-500 dark:text-gray-400 mt-2">0%</p>
+        <p id="progress-text" class="text-sm text-gray-500 mt-2">0%</p>
       </div>
-      <div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm">
-        <h3 class="font-semibold mb-3">Top 5 Murid</h3>
-        <div id="top-list" class="space-y-2"></div>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm"><h3 class="font-semibold mb-3">Top 5 Murid</h3><div id="top-list" class="space-y-2"></div></div>
+        <div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm"><h3 class="font-semibold mb-3">Ringkasan Hari Ini</h3><div id="today-summary" class="space-y-2 text-sm"></div></div>
       </div>
     </section>
 
@@ -60,7 +62,7 @@
         <input id="search-input" type="text" placeholder="Cari nama murid..." class="flex-1 px-4 py-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700">
         <select id="filter-tahun" class="px-3 py-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700"><option value="">Semua Tahun</option><option>Tahun 1</option><option>Tahun 2</option><option>Tahun 3</option><option>Tahun 4</option><option>Tahun 5</option><option>Tahun 6</option></select>
         <select id="filter-kelas" class="px-3 py-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700"><option value="">Semua Kelas</option><option>Neuron</option><option>Nova</option><option>Nexus</option></select>
-        <select id="filter-kategori" class="px-3 py-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700"><option value="">Semua Kategori</option><option>Iqra</option><option>Al-Quran</option><option>Khatam</option><option>Mentor</option><option>Tamayyuz</option></select>
+        <select id="filter-kategori" class="px-3 py-2 rounded-lg border dark:bg-slate-800 dark:border-slate-700"><option value="">Semua Kategori</option><option>Iqra</option><option>Al-Quran</option><option>Tamayyuz</option><option>Khatam</option><option>Mentor</option></select>
       </div>
       <div class="overflow-x-auto bg-white dark:bg-slate-800 rounded-xl shadow-sm">
         <table class="w-full text-sm">
@@ -78,10 +80,9 @@
           <div><label class="block text-sm font-medium mb-1">Tahun</label><select id="f-tahun" required class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"><option value="">-- Pilih Tahun --</option><option>Tahun 1</option><option>Tahun 2</option><option>Tahun 3</option><option>Tahun 4</option><option>Tahun 5</option><option>Tahun 6</option></select></div>
           <div><label class="block text-sm font-medium mb-1">Kelas</label><select id="f-kelas" required class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"><option value="">-- Pilih Kelas --</option><option>Neuron</option><option>Nova</option><option>Nexus</option></select></div>
           <div><label class="block text-sm font-medium mb-1">Kategori</label><select id="f-kategori" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"><option>Iqra</option><option>Al-Quran</option><option>Khatam</option><option>Mentor</option><option>Tamayyuz</option></select></div>
-          <div id="fields-iqra" class="grid grid-cols-2 gap-3"><div><label class="block text-sm font-medium mb-1">Iqra Berapa</label><input id="f-iqra-num" type="number" min="1" max="6" value="1" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div><div><label class="block text-sm font-medium mb-1">Muka Surat</label><input id="f-iqra-ms" type="number" min="1" value="1" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div></div>
-          <div id="fields-quran" class="grid grid-cols-2 gap-3 hidden"><div><label class="block text-sm font-medium mb-1">Juzuk</label><input id="f-juzuk" type="number" min="1" max="30" value="1" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div><div><label class="block text-sm font-medium mb-1">Muka Surat</label><input id="f-ms" type="number" min="1" max="604" value="1" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div></div>
+          <div id="fields-level" class="grid grid-cols-2 gap-3"><div><label id="level-label" class="block text-sm font-medium mb-1">Iqra/Juzuk</label><input id="f-level" type="number" min="1" value="1" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div><div><label class="block text-sm font-medium mb-1">Muka Surat</label><input id="f-page" type="number" min="1" value="1" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div></div>
           <div id="fields-tamayyuz" class="space-y-3 hidden"><div><label class="block text-sm font-medium mb-1">Status Hafazan</label><select id="f-tam-status" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"><option>Sedang Hafal</option><option>Hafazan Selesai</option></select></div><div><label class="block text-sm font-medium mb-1">Surah</label><input id="f-tam-surah" placeholder="Contoh: Al-Mulk" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div><div><label class="block text-sm font-medium mb-1">Ayat</label><input id="f-tam-ayat" placeholder="cth: 1-15" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div></div>
-          <div id="fields-mentor" class="space-y-3 hidden"><div><label class="block text-sm font-medium mb-1">Nama Mentee</label><input id="f-mentee" placeholder="Nama pelajar yang dibimbing" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div></div>
+          <div id="fields-mentor" class="hidden"><label class="block text-sm font-medium mb-1">Nama Mentee</label><input id="f-mentee" placeholder="Nama pelajar yang dibimbing" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div>
           <div><label class="block text-sm font-medium mb-1">Catatan Guru</label><textarea id="f-catatan" rows="2" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></textarea></div>
           <button type="submit" class="w-full py-2 rounded-lg font-semibold text-white bg-islamic-green hover:bg-islamic-dark transition">Tambah Murid</button>
         </form>
@@ -95,22 +96,36 @@
         <div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm"><h3 class="font-semibold mb-4">Ranking Al-Quran</h3><div id="ranking-list" class="space-y-2"></div></div>
       </div>
     </section>
+
+    <section id="tab-data" class="tab-content hidden">
+      <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm max-w-2xl mx-auto">
+        <h2 class="font-bold text-xl mb-2">Pengurusan Data</h2>
+        <p class="text-sm text-gray-500 mb-5">Data disimpan dalam browser menggunakan localStorage. Excel digunakan untuk import/export.</p>
+        <div class="grid md:grid-cols-2 gap-3">
+          <button id="export-excel-btn" class="py-3 rounded-lg bg-islamic-green text-white font-semibold">Export Excel</button>
+          <label class="py-3 rounded-lg bg-blue-600 text-white font-semibold text-center cursor-pointer">Import Excel<input id="import-excel-input" type="file" accept=".xlsx,.xls,.csv" class="hidden"></label>
+          <button id="export-json-btn" class="py-3 rounded-lg bg-slate-700 text-white font-semibold">Backup JSON</button>
+          <button id="clear-data-btn" class="py-3 rounded-lg bg-red-600 text-white font-semibold">Clear Data</button>
+        </div>
+        <div id="data-msg" class="mt-4 text-sm hidden"></div>
+      </div>
+    </section>
   </main>
 
   <div id="edit-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden">
-    <div class="bg-white dark:bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between mb-4"><h3 class="font-bold text-lg">Kemaskini Bacaan</h3><button type="button" id="modal-close-btn" class="text-gray-500 text-xl font-bold">✕</button></div>
+    <div class="bg-white dark:bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl">
+      <div class="flex items-center justify-between mb-4"><h3 class="font-bold text-lg">Kemaskini Murid</h3><button type="button" id="modal-close-btn" class="text-gray-500 text-xl font-bold">✕</button></div>
       <form id="edit-form" class="space-y-3"><input id="edit-id" type="hidden">
         <div><label class="block text-sm font-medium mb-1">Nama Murid</label><input id="e-nama" required class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div>
         <div><label class="block text-sm font-medium mb-1">Tarikh</label><input id="e-tarikh" type="date" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div>
-        <div><label class="block text-sm font-medium mb-1">Kategori</label><select id="e-kategori" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"><option>Iqra</option><option>Al-Quran</option><option>Khatam</option><option>Mentor</option><option>Tamayyuz</option></select></div>
-        <div class="grid grid-cols-2 gap-3"><div><label class="block text-sm font-medium mb-1">Juzuk/Iqra</label><input id="e-level" type="number" min="1" max="30" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div><div><label class="block text-sm font-medium mb-1">Muka Surat</label><input id="e-page" type="number" min="1" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div></div>
+        <div><label class="block text-sm font-medium mb-1">Kategori</label><select id="e-kategori" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"><option>Iqra</option><option>Al-Quran</option><option>Tamayyuz</option><option>Khatam</option><option>Mentor</option></select></div>
+        <div class="grid grid-cols-2 gap-3"><div><label class="block text-sm font-medium mb-1">Iqra/Juzuk</label><input id="e-level" type="number" min="1" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div><div><label class="block text-sm font-medium mb-1">Muka Surat</label><input id="e-page" type="number" min="1" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></div></div>
         <div><label class="block text-sm font-medium mb-1">Catatan</label><textarea id="e-catatan" rows="2" class="w-full px-3 py-2 rounded-lg border dark:bg-slate-700 dark:border-slate-600"></textarea></div>
         <div class="flex gap-3 pt-2"><button type="submit" class="flex-1 py-2 bg-islamic-green text-white rounded-lg font-semibold">Simpan</button><button type="button" id="modal-padam-btn" class="flex-1 py-2 bg-red-500 text-white rounded-lg font-semibold">Padam</button></div>
       </form>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
